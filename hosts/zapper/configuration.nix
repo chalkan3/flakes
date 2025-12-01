@@ -80,7 +80,7 @@
     unzip
     zip
     gzip
-    tar
+    gnutar
   ];
 
   # Nix settings
