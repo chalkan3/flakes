@@ -36,4 +36,59 @@
     font = "Lat2-Terminus16";
     keyMap = "us";
   };
+
+  # Enable zsh system-wide
+  programs.zsh.enable = true;
+
+  # Set zsh as default shell for root
+  users.users.root.shell = pkgs.zsh;
+
+  # System packages
+  environment.systemPackages = with pkgs; [
+    # Shells
+    zsh
+    bash
+
+    # Editors
+    neovim
+    vim
+
+    # Version control
+    git
+
+    # Terminal tools
+    tmux
+    zellij
+    htop
+    btop
+
+    # File management
+    tree
+    eza
+    bat
+    fd
+    ripgrep
+    fzf
+
+    # Network tools
+    curl
+    wget
+    jq
+
+    # Development
+    gnumake
+    gcc
+
+    # Utilities
+    unzip
+    zip
+    gzip
+    tar
+  ];
+
+  # Nix settings
+  nix.settings = {
+    experimental-features = [ "nix-command" "flakes" ];
+    auto-optimise-store = true;
+  };
 }
