@@ -40,9 +40,6 @@
   # Enable zsh system-wide
   programs.zsh.enable = true;
 
-  # Set zsh as default shell for root
-  users.users.root.shell = pkgs.zsh;
-
   # System packages
   environment.systemPackages = with pkgs; [
     # Shells
