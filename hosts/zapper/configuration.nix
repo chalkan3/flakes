@@ -79,18 +79,11 @@
     zsh
   ];
 
-  # Nix settings
-  nix = {
-    settings = {
-      experimental-features = [ "nix-command" "flakes" ];
-      auto-optimise-store = true;
-      trusted-users = [ "root" ];
-    };
-    gc = {
-      automatic = true;
-      dates = "weekly";
-      options = "--delete-older-than 7d";
-    };
+  # Nix settings - gc is configured in modules/nixos/nix.nix
+  nix.settings = {
+    experimental-features = [ "nix-command" "flakes" ];
+    auto-optimise-store = true;
+    trusted-users = [ "root" ];
   };
 
   # Allow unfree packages
