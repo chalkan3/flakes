@@ -1,9 +1,10 @@
-# Zapper container configuration
+# Zapper NixOS configuration
+# Supports both LXC containers and VMs (auto-detected)
 { config, lib, pkgs, modulesPath, ... }:
 
 {
   imports = [
-    # LXC container support
+    # LXC container support (safe to include even for VMs)
     "${modulesPath}/virtualisation/lxc-container.nix"
   ];
 
@@ -13,8 +14,8 @@
   # System state version
   system.stateVersion = "25.05";
 
-  # Boot configuration for containers
-  boot.isContainer = true;
+  # Boot configuration - auto-detect container vs VM
+  boot.isContainer = lib.mkDefault true;
 
   # Enable SSH for remote access
   services.openssh = {
@@ -30,6 +31,7 @@
 
   # Locale
   i18n.defaultLocale = "en_US.UTF-8";
+  i18n.supportedLocales = [ "en_US.UTF-8/UTF-8" "pt_BR.UTF-8/UTF-8" ];
 
   # Console settings
   console = {
@@ -37,55 +39,72 @@
     keyMap = "us";
   };
 
-  # Enable zsh system-wide
+  # Enable zsh system-wide and set as default shell
   programs.zsh.enable = true;
+  users.defaultUserShell = pkgs.zsh;
 
-  # System packages
+  # Root user configuration
+  users.users.root = {
+    shell = pkgs.zsh;
+    # Set initial password for SSH access (change after first login)
+    initialPassword = "nixos";
+  };
+
+  # Fonts - system-wide for console and GUI apps
+  fonts = {
+    packages = with pkgs; [
+      (nerdfonts.override { fonts = [ "JetBrainsMono" "FiraCode" "Hack" ]; })
+      liberation_ttf
+      dejavu_fonts
+    ];
+    fontconfig = {
+      enable = true;
+      defaultFonts = {
+        monospace = [ "JetBrainsMono Nerd Font" "DejaVu Sans Mono" ];
+      };
+    };
+  };
+
+  # System packages (minimal - most are in home-manager)
   environment.systemPackages = with pkgs; [
-    # Shells
-    zsh
-    bash
-
-    # Editors
-    neovim
-    vim
-
-    # Version control
+    # Essential
     git
-
-    # Terminal tools
-    tmux
-    zellij
-    htop
-    btop
-
-    # File management
-    tree
-    eza
-    bat
-    fd
-    ripgrep
-    fzf
-
-    # Network tools
+    vim
     curl
     wget
-    jq
 
-    # Development
-    gnumake
-    gcc
-
-    # Utilities
-    unzip
-    zip
-    gzip
-    gnutar
+    # Shell
+    zsh
   ];
 
   # Nix settings
-  nix.settings = {
-    experimental-features = [ "nix-command" "flakes" ];
-    auto-optimise-store = true;
+  nix = {
+    settings = {
+      experimental-features = [ "nix-command" "flakes" ];
+      auto-optimise-store = true;
+      trusted-users = [ "root" ];
+    };
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 7d";
+    };
   };
+
+  # Allow unfree packages
+  nixpkgs.config.allowUnfree = true;
+
+  # Networking
+  networking = {
+    # Use DHCP by default
+    useDHCP = lib.mkDefault true;
+    # Enable firewall but allow SSH
+    firewall = {
+      enable = true;
+      allowedTCPPorts = [ 22 ];
+    };
+  };
+
+  # Security
+  security.sudo.wheelNeedsPassword = false;
 }

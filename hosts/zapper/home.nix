@@ -18,66 +18,44 @@
     VISUAL = "nvim";
     PAGER = "less";
     LANG = "en_US.UTF-8";
+    TERM = "xterm-256color";
   };
 
-  # Zsh configuration
+  # ─────────────────────────────────────────────────────────────────────
+  # ZSH with Zinit + Powerlevel10k (copied from chalkan3's Mac config)
+  # ─────────────────────────────────────────────────────────────────────
   programs.zsh = {
     enable = true;
     enableCompletion = true;
-    autosuggestion.enable = true;
-    syntaxHighlighting.enable = true;
 
-    shellAliases = {
-      # Navigation
-      ll = "eza -la --icons --git";
-      ls = "eza --icons";
-      la = "eza -la --icons";
-      lt = "eza --tree --icons";
-      cat = "bat";
+    # Don't use home-manager's autosuggestions/syntax-highlighting
+    # We use zinit for that with turbo mode for better performance
+    autosuggestion.enable = false;
+    syntaxHighlighting.enable = false;
 
-      # Git
-      g = "git";
-      gs = "git status";
-      ga = "git add";
-      gc = "git commit";
-      gp = "git push";
-      gl = "git log --oneline";
-
-      # Nix
-      nrs = "sudo nixos-rebuild switch";
-      nrb = "sudo nixos-rebuild boot";
-      nrt = "sudo nixos-rebuild test";
-
-      # Editors
-      v = "nvim";
-      vim = "nvim";
-
-      # System
-      ".." = "cd ..";
-      "..." = "cd ../..";
-      "...." = "cd ../../..";
-    };
-
-    history = {
-      size = 10000;
-      path = "$HOME/.zsh_history";
-      ignoreDups = true;
-      share = true;
-    };
-
-    initContent = ''
-      # Better history search
-      bindkey '^[[A' history-search-backward
-      bindkey '^[[B' history-search-forward
-
-      # FZF integration
-      if command -v fzf &> /dev/null; then
-        eval "$(fzf --zsh)"
-      fi
+    # Source the custom zshrc
+    initExtra = ''
+      # Source the full zshrc configuration
+      [[ -f ~/.zshrc ]] && source ~/.zshrc
     '';
   };
 
+  # ─────────────────────────────────────────────────────────────────────
+  # Neovim - managed via dotfiles (Lazy.nvim)
+  # ─────────────────────────────────────────────────────────────────────
+  programs.neovim = {
+    enable = true;
+    defaultEditor = true;
+    viAlias = true;
+    vimAlias = true;
+
+    # Let Lazy.nvim manage plugins via the dotfiles
+    # We just install the base neovim and dependencies
+  };
+
+  # ─────────────────────────────────────────────────────────────────────
   # Git configuration
+  # ─────────────────────────────────────────────────────────────────────
   programs.git = {
     enable = true;
     userName = "chalkan3";
@@ -87,32 +65,75 @@
       pull.rebase = true;
       core.editor = "nvim";
     };
-  };
-
-  # Starship prompt
-  programs.starship = {
-    enable = true;
-    enableZshIntegration = true;
-    settings = {
-      add_newline = false;
-      character = {
-        success_symbol = "[>](bold green)";
-        error_symbol = "[x](bold red)";
-      };
-      directory = {
-        truncation_length = 3;
-        truncate_to_repo = true;
-      };
-      git_branch = {
-        symbol = " ";
-      };
-      nix_shell = {
-        symbol = " ";
-        format = "via [$symbol$state]($style) ";
+    # Use delta for better diffs
+    delta = {
+      enable = true;
+      options = {
+        navigate = true;
+        light = false;
+        side-by-side = true;
+        line-numbers = true;
       };
     };
   };
 
-  # Neovim - managed manually via ~/.config/nvim
-  programs.neovim.enable = false;
+  # ─────────────────────────────────────────────────────────────────────
+  # Dotfiles - copy zsh and nvim configs
+  # ─────────────────────────────────────────────────────────────────────
+  home.file = {
+    # ZSH dotfiles
+    ".zshrc".source = ./dotfiles/.zshrc;
+    ".p10k.zsh".source = ./dotfiles/.p10k.zsh;
+    ".zsh" = {
+      source = ./dotfiles/zsh;
+      recursive = true;
+    };
+
+    # Neovim dotfiles
+    ".config/nvim" = {
+      source = ./dotfiles/nvim;
+      recursive = true;
+    };
+  };
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Additional packages for the shell environment
+  # ─────────────────────────────────────────────────────────────────────
+  home.packages = with pkgs; [
+    # Fonts (Nerd Fonts for p10k icons)
+    (nerdfonts.override { fonts = [ "JetBrainsMono" "FiraCode" "Hack" ]; })
+
+    # Shell tools used by zsh config
+    zoxide        # Smart cd
+    eza           # Modern ls
+    bat           # Modern cat
+    fd            # Modern find
+    ripgrep       # Modern grep
+    fzf           # Fuzzy finder
+    delta         # Git diff viewer
+    direnv        # Environment switcher
+    jq            # JSON processor
+    yq            # YAML processor
+
+    # Terminal multiplexer
+    zellij
+    tmux
+
+    # System monitoring
+    htop
+    btop
+
+    # Neovim dependencies
+    tree-sitter   # For syntax highlighting
+    nodejs_20     # For LSPs and plugins
+    gcc           # For treesitter compilation
+    gnumake
+
+    # Utils
+    curl
+    wget
+    unzip
+    gzip
+    gnutar
+  ];
 }
