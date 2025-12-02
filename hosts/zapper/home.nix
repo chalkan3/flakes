@@ -33,8 +33,8 @@
     autosuggestion.enable = false;
     syntaxHighlighting.enable = false;
 
-    # Source the custom zshrc
-    initExtra = ''
+    # Source the custom zshrc (NixOS 25.05+ uses initContent)
+    initContent = ''
       # Source the full zshrc configuration
       [[ -f ~/.zshrc ]] && source ~/.zshrc
     '';
@@ -100,8 +100,10 @@
   # Additional packages for the shell environment
   # ─────────────────────────────────────────────────────────────────────
   home.packages = with pkgs; [
-    # Fonts (Nerd Fonts for p10k icons)
-    (nerdfonts.override { fonts = [ "JetBrainsMono" "FiraCode" "Hack" ]; })
+    # Fonts (Nerd Fonts for p10k icons) - NixOS 25.05+ syntax
+    nerd-fonts.jetbrains-mono
+    nerd-fonts.fira-code
+    nerd-fonts.hack
 
     # Shell tools used by zsh config
     zoxide        # Smart cd

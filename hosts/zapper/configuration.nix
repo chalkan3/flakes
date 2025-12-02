@@ -52,7 +52,10 @@
   # Fonts - system-wide for console and GUI apps
   fonts = {
     packages = with pkgs; [
-      (nerdfonts.override { fonts = [ "JetBrainsMono" "FiraCode" "Hack" ]; })
+      # Nerd Fonts - NixOS 25.05+ syntax
+      nerd-fonts.jetbrains-mono
+      nerd-fonts.fira-code
+      nerd-fonts.hack
       liberation_ttf
       dejavu_fonts
     ];
