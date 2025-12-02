@@ -15,8 +15,8 @@
       share = true;
     };
 
-    # Zinit plugin manager
-    initExtra = ''
+    # Zinit plugin manager (NixOS 25.05+ uses initContent)
+    initContent = ''
       # ═══════════════════════════════════════════════════════════════════════
       # Zinit Setup
       # ═══════════════════════════════════════════════════════════════════════
