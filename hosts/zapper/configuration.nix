@@ -39,13 +39,12 @@
     keyMap = "us";
   };
 
-  # Enable zsh system-wide and set as default shell
+  # Enable zsh system-wide (default shell is set in modules/nixos/users.nix)
   programs.zsh.enable = true;
-  users.defaultUserShell = pkgs.zsh;
 
   # Root user configuration
   users.users.root = {
-    shell = pkgs.zsh;
+    # shell is defined in modules/nixos/users.nix
     # Set initial password for SSH access (change after first login)
     initialPassword = "nixos";
   };
