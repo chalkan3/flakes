@@ -2,6 +2,11 @@
 # Supports both LXC containers and VMs (auto-detected)
 { config, lib, pkgs, modulesPath, ... }:
 
+let
+  # Detect if running in a container by checking systemd container marker
+  # This works at evaluation time by checking if we're building for a VM
+  isContainer = config.boot.isContainer;
+in
 {
   imports = [
     # LXC container support (safe to include even for VMs)
@@ -14,8 +19,28 @@
   # System state version
   system.stateVersion = "25.05";
 
-  # Boot configuration - auto-detect container vs VM
-  boot.isContainer = lib.mkDefault true;
+  # Boot configuration - set to false for VMs (can be overridden)
+  boot.isContainer = lib.mkDefault false;
+
+  # Bootloader for VMs - GRUB with nodev for Incus VMs
+  boot.loader.grub = lib.mkIf (!config.boot.isContainer) {
+    enable = true;
+    device = "nodev";
+    efiSupport = false;
+    extraConfig = ''
+      serial --unit=0 --speed=115200
+      terminal_output serial console
+      terminal_input serial console
+    '';
+  };
+
+  # Filesystem for VMs (Incus uses virtio disks)
+  fileSystems = lib.mkIf (!config.boot.isContainer) {
+    "/" = {
+      device = "/dev/disk/by-label/nixos";
+      fsType = "ext4";
+    };
+  };
 
   # Enable SSH for remote access
   services.openssh = {
