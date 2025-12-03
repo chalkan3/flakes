@@ -22,17 +22,9 @@ in
   # Boot configuration - set to false for VMs (can be overridden)
   boot.isContainer = lib.mkDefault false;
 
-  # Bootloader for VMs - GRUB with nodev for Incus VMs
-  boot.loader.grub = lib.mkIf (!config.boot.isContainer) {
-    enable = true;
-    device = "nodev";
-    efiSupport = false;
-    extraConfig = ''
-      serial --unit=0 --speed=115200
-      terminal_output serial console
-      terminal_input serial console
-    '';
-  };
+  # Bootloader for VMs - systemd-boot for Incus VMs (EFI)
+  boot.loader.systemd-boot.enable = lib.mkIf (!config.boot.isContainer) true;
+  boot.loader.efi.canTouchEfiVariables = false;
 
   # Filesystem for VMs (Incus uses virtio disks)
   fileSystems = lib.mkIf (!config.boot.isContainer) {
