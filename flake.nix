@@ -53,13 +53,13 @@
     in {
       # NixOS configurations
       nixosConfigurations = {
-        # Zapper - LXC Container (x86_64)
-        zapper = nixpkgs.lib.nixosSystem {
+        # Chalkan3 - LXC Container (x86_64)
+        chalkan3 = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = { inherit inputs; };
           modules = [
             # Hardware/platform specific
-            ./hosts/zapper/configuration.nix
+            ./hosts/chalkan3/configuration.nix
 
             # Home Manager as NixOS module
             home-manager.nixosModules.home-manager
@@ -68,7 +68,7 @@
                 useGlobalPkgs = true;
                 useUserPackages = true;
                 extraSpecialArgs = { inherit inputs; };
-                users.root = import ./hosts/zapper/home.nix;
+                users.root = import ./hosts/chalkan3/home.nix;
               };
             }
 
@@ -77,13 +77,13 @@
           ];
         };
 
-        # Zapper - LXC Container/VM (aarch64)
-        zapper-aarch64 = nixpkgs.lib.nixosSystem {
+        # Chalkan3 - LXC Container/VM (aarch64)
+        chalkan3-aarch64 = nixpkgs.lib.nixosSystem {
           system = "aarch64-linux";
           specialArgs = { inherit inputs; };
           modules = [
             # Hardware/platform specific
-            ./hosts/zapper/configuration.nix
+            ./hosts/chalkan3/configuration.nix
 
             # Home Manager as NixOS module
             home-manager.nixosModules.home-manager
@@ -92,7 +92,7 @@
                 useGlobalPkgs = true;
                 useUserPackages = true;
                 extraSpecialArgs = { inherit inputs; };
-                users.root = import ./hosts/zapper/home.nix;
+                users.root = import ./hosts/chalkan3/home.nix;
               };
             }
 
