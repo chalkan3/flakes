@@ -77,6 +77,30 @@
           ];
         };
 
+        # Chalkan3 - x86_64 (alias for VMs on x86 servers)
+        chalkan3_x86_64 = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { inherit inputs; };
+          modules = [
+            # Hardware/platform specific
+            ./hosts/chalkan3/configuration.nix
+
+            # Home Manager as NixOS module
+            home-manager.nixosModules.home-manager
+            {
+              home-manager = {
+                useGlobalPkgs = true;
+                useUserPackages = true;
+                extraSpecialArgs = { inherit inputs; };
+                users.root = import ./hosts/chalkan3/home.nix;
+              };
+            }
+
+            # Global NixOS modules
+            ./modules/nixos
+          ];
+        };
+
         # Chalkan3 - LXC Container/VM (aarch64)
         chalkan3-aarch64 = nixpkgs.lib.nixosSystem {
           system = "aarch64-linux";
